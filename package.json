@@ -24,7 +24,6 @@
     "pizzip": "^3.1.1",
     "simple-git": "^3.2.6"
   },
-  "type": "module",
   "devDependencies": {
     "cross-env": "^7.0.3",
     "eslint": "^8.2.0",
@@ -55,20 +54,5 @@
         }
       ]
     }
-  },
-  "jest": {
-    "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "src/**/*.js",
-      "!src/**/*.spec.js",
-      "lib/**/*.js",
-      "!lib/**/*.spec.js"
-    ],
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/*.spec.js"
-    ],
-    "transform": {},
-    "coverageProvider": "v8"
   }
 }
