@@ -5,6 +5,7 @@
   "description": "community scripts",
   "scripts": {
     "report": "node ./src/generate-report.js",
+    "perf": "node ./src/perf-check.js",
     "lint": "eslint **/*.js",
     "lint:fix": "npm run lint -- --fix",
     "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --collectCoverage"
@@ -19,8 +20,10 @@
     "npm": ">=8.1.0"
   },
   "dependencies": {
+    "chrome-launcher": "^0.15.0",
     "docxtemplater": "^3.29.0",
     "dotenv": "^16.0.0",
+    "lighthouse": "^9.4.0",
     "pizzip": "^3.1.1",
     "simple-git": "^3.2.6"
   },
@@ -54,5 +57,20 @@
         }
       ]
     }
+  },
+  "jest": {
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.spec.js",
+      "lib/**/*.js",
+      "!lib/**/*.spec.js"
+    ],
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/*.spec.js"
+    ],
+    "transform": {},
+    "coverageProvider": "v8"
   }
 }
