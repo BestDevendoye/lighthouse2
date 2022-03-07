@@ -1,10 +1,9 @@
 {
-  "name": "community",
+  "name": "google-lighthouse",
   "version": "0.1.0",
   "private": true,
-  "description": "community scripts",
+  "description": "google lighthouse",
   "scripts": {
-    "report": "node ./src/generate-report.js",
     "perf": "node ./src/perf-check.js",
     "lint": "eslint **/*.js",
     "lint:fix": "npm run lint -- --fix",
@@ -21,11 +20,7 @@
   },
   "dependencies": {
     "chrome-launcher": "^0.15.0",
-    "docxtemplater": "^3.29.0",
-    "dotenv": "^16.0.0",
-    "lighthouse": "^9.4.0",
-    "pizzip": "^3.1.1",
-    "simple-git": "^3.2.6"
+    "lighthouse": "^9.4.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
