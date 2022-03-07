@@ -1,32 +1,54 @@
-import lighthouse from 'lighthouse';
-import chromeLauncher from 'chrome-launcher';
-import { saveReport } from '../lib/file-manager.js';
+import 'dotenv/config.js';
+import puppeteer from 'puppeteer';
+import fs from 'fs';
+import path from 'path';
+import { startFlow } from 'lighthouse/lighthouse-core/fraggle-rock/api.js';
+import { noop, job, cond } from '../lib/functional.js';
 import logger from '../lib/logger.js';
 
-const { info } = logger('Perf Check');
-const checkUrl = process.argv[process.argv.length - 1];
-const reportName = () => new Date()
+const DEBUG = process.env.LIGHTHOUSE_DEBUG === 'true';
+const HEADLESS = process.env.LIGHTHOUSE_HEADLESS !== 'false';
+const FLOW_CONFIG_PATH = path.join('..', process.env.LIGHTHOUSE_FLOW_CONFIG_PATH || './config/flow.js')
+  .replace(/\\/g, '/');
+const OUTPUT = path.resolve(process.env.LIGHTHOUSE_OUTPUT || './reports');
+
+const log = logger('Lighthouse', DEBUG);
+const { info, debug } = log;
+const reportDate = () => new Date()
   .toISOString()
   .replace(/:/g, '')
   .replace(/\..*?$/, '')
   .replace('T', '_');
+const mkdir = (dirPath) => (fs.existsSync(dirPath) ? noop : () => fs.mkdirSync(dirPath))();
 
-// perform the check
-(async () => {
-  const chrome = await chromeLauncher.launch({ chromeFlags: ['--headless'] });
-  const runnerResult = await lighthouse(checkUrl, {
-    logLevel: 'info',
-    output: 'html',
-    onlyCategories: ['performance'],
-    port: chrome.port,
-  });
+let browser;
 
-  // Write report to new html file
-  saveReport(checkUrl.split('//')[1], reportName(), runnerResult.report);
+job(log, async () => {
+  info('Loading configuration...');
+  debug('DEBUG:', DEBUG);
+  debug('FLOW_CONFIG_PATH:', FLOW_CONFIG_PATH);
+  debug('OUTPUT:', OUTPUT);
 
-  // `.lhr` is the Lighthouse Result as a JS object
-  info('Report is done for', runnerResult.lhr.finalUrl);
-  info('Performance score was', runnerResult.lhr.categories.performance.score * 100);
+  const { name, settings, flow } = await import(FLOW_CONFIG_PATH);
 
-  await chrome.kill();
-})();
+  info(`Start scanning ${name}...`);
+  browser = await puppeteer.launch({ headless: HEADLESS });
+  const page = await browser.newPage();
+
+  const lighthouse = await startFlow(page, { name, configContext: { settingsOverrides: settings } });
+
+  await page.setViewport({ width: 1350, height: 940 });
+
+  await flow(log, lighthouse, page, browser);
+
+  mkdir(OUTPUT);
+
+  const reportName = `${name} ${reportDate()}`;
+
+  info(`Generating the report ${reportName}`);
+  fs.writeFileSync(`${OUTPUT}/${reportName}.html`, lighthouse.generateReport());
+}, async () => {
+  await cond(browser, () => browser.close());
+
+  info('[DONE]');
+})(DEBUG);

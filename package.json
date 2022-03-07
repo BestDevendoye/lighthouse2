@@ -14,15 +14,16 @@
     "url": "git+kpmgfr@vs-ssh.visualstudio.com:v3/kpmgfr/Plateforme%20Technologique/community"
   },
   "author": "ITS KPMG",
-  "type": "module",
   "engines": {
     "node": ">=16.13.0",
     "npm": ">=8.1.0"
   },
   "dependencies": {
-    "chrome-launcher": "^0.15.0",
-    "lighthouse": "^9.4.0"
+    "dotenv": "^16.0.0",
+    "lighthouse": "^9.4.0",
+    "puppeteer": "^13.5.0"
   },
+  "type": "module",
   "devDependencies": {
     "cross-env": "^7.0.3",
     "eslint": "^8.2.0",
