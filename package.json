@@ -1,10 +1,10 @@
 {
-  "name": "google-lighthouse",
+  "name": "lighthouse",
   "version": "0.1.0",
   "private": true,
-  "description": "google lighthouse",
+  "description": "lighthouse",
   "scripts": {
-    "perf": "node ./src/perf-check.js",
+    "lighthouse": "node ./src/lighthouse.js",
     "lint": "eslint **/*.js",
     "lint:fix": "npm run lint -- --fix",
     "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --collectCoverage"
@@ -14,6 +14,7 @@
     "url": "git+kpmgfr@vs-ssh.visualstudio.com:v3/kpmgfr/Plateforme%20Technologique/community"
   },
   "author": "ITS KPMG",
+  "type": "module",
   "engines": {
     "node": ">=16.13.0",
     "npm": ">=8.1.0"
