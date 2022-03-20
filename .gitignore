@@ -5,7 +5,7 @@ node_modules
 ~$*
 *.tmp
 /coverage
-/config
+
 
 .env
 npm-debug.log*
