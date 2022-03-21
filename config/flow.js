@@ -1,4 +1,4 @@
-export const name = 'Pulse Recette';
+import { HTTPResponse } from 'puppeteer/lib/cjs/puppeteer/common/HTTPResponse.js';
 
 export const viewport = { width: 1350, height: 940 };
 export const settings = {
@@ -12,14 +12,37 @@ export const settings = {
   formFactor: 'desktop',
 };
 
-export const flow = async ({ info, debug }, lighthouse, page) => {
-  const { PULSE_URL, PULSE_USERNAME, PULSE_PASSWORD } = process.env;
+const ENV_VARIABLE = process.env.NODE_ENV;
 
-  info('Start testing flow...');
+let PULSE_URL = '';
+let PULSE_USERNAME = '';
+let PULSE_PASSWORD = '';
+let reportFileName;
+
+if (ENV_VARIABLE === 'DEV') {
+  PULSE_URL = process.env.PULSE_DEV_URL;
+  PULSE_USERNAME = process.env.PULSE_DEV_USERNAME;
+  PULSE_PASSWORD = process.env.PULSE_DEV_PASSWORD;
+  reportFileName = 'pulse-dev';
+} else if (ENV_VARIABLE === 'RECETTE') {
+  PULSE_URL = process.env.PULSE_REC_URL;
+  PULSE_USERNAME = process.env.PULSE_REC_USERNAME;
+  PULSE_PASSWORD = process.env.PULSE_REC_PASSWORD;
+  reportFileName = 'pulse-recette';
+} else {
+  console.log('******************************************************');
+  console.log('****** THE PROVIDED ENVIRONMENT VALUE IS INVALID *****');
+  console.log('******************************************************');
+  process.exit(0);
+}
+export const envVariableValue = ENV_VARIABLE;
+export const generatedReport = reportFileName;
+
+export const flow = async ({ info, debug }, lighthouse, page) => {
+  info('=== Start testing flow ===');
   debug('URL', PULSE_URL);
-  // await lighthouse.navigate(URL);
   await page.goto(PULSE_URL);
-  await page.waitForNavigation();
+  await page.waitForNavigation({ timeout: 2000 });
 
   info('Login page...');
   await lighthouse.startTimespan({ stepName: 'Login to app.' });
@@ -82,8 +105,11 @@ export const flow = async ({ info, debug }, lighthouse, page) => {
   await page.waitForTimeout(3000);
   await element.click();
   await page.waitForTimeout(3000);
-  const selectElement = await page.waitForXPath('/html/body/div[7]/div[1]/div/div[1]/ul/li[4]');
-  await selectElement.click();
+
+  if (envVariableValue !== 'DEV') {
+    const selectElement = await page.waitForXPath('/html/body/div[7]/div[1]/div/div[1]/ul/li[4]');
+    await selectElement.click();
+  }
   const validateElement = await page.waitForXPath(
     '//*[@id="single-spa-application:@kpmg/mypulse-natto"]/div/div/div[1]/div[1]/div[2]/'
     + 'div/div[1]/section/div[2]/div[2]/button[2]',
@@ -99,27 +125,29 @@ export const flow = async ({ info, debug }, lighthouse, page) => {
   await lighthouse.snapshot({ stepName: 'Filter search (last 30 days)' });
   info('Search result successfully showed...');
 
-  info('Going to Battec entities...');
-  await lighthouse.startTimespan({ stepName: 'Go to Battec entitie' });
+  if (envVariableValue !== 'DEV') {
+    info('Going to Battec entities...');
+    await lighthouse.startTimespan({ stepName: 'Go to Battec entitie' });
 
-  element = await page.waitForXPath(
-    '//*[@id="single-spa-application:@kpmg/mypulse-navbar"]/div/div/div[1]',
-  );
-  await element.click();
-  await page.waitForTimeout(3000);
+    element = await page.waitForXPath(
+      '//*[@id="single-spa-application:@kpmg/mypulse-navbar"]/div/div/div[1]',
+    );
+    await element.click();
+    await page.waitForTimeout(3000);
 
-  element = await page.waitForXPath(
-    '//*[@id="single-spa-application:@kpmg/setting"]/div/div/div[1]/div/div[3]/'
-    + 'div/div[34]/div/div/div/div[2]/div[1]/button',
-  );
-  await element.click();
-  await page.waitForTimeout(3000);
-  await page.waitForXPath(
-    '//*[@id="single-spa-application:@kpmg/setting"]/div/div/div[1]/div/div[3]/div/div[34]/div/div',
-  );
-  await lighthouse.endTimespan();
-  await lighthouse.snapshot({ stepName: 'Go to Battec entitie' });
-  info('Done going to battec entities...');
+    element = await page.waitForXPath(
+      '//*[@id="single-spa-application:@kpmg/setting"]/div/div/div[1]/div/div[3]/'
+      + 'div/div[34]/div/div/div/div[2]/div[1]/button',
+    );
+    await element.click();
+    await page.waitForTimeout(3000);
+    await page.waitForXPath(
+      '//*[@id="single-spa-application:@kpmg/setting"]/div/div/div[1]/div/div[3]/div/div[34]/div/div',
+    );
+    await lighthouse.endTimespan();
+    await lighthouse.snapshot({ stepName: 'Go to Battec entitie' });
+    info('Done going to battec entities...');
+  }
 
   info('Going to indicator result...');
   await lighthouse.startTimespan({ stepName: 'Show indicator page' });

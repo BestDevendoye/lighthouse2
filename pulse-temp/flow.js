@@ -1,3 +1,5 @@
+import { envVariableValue } from '../config/flow.js';
+
 export const name = 'Pulse Recette';
 
 export const viewport = { width: 1350, height: 940 };
@@ -17,7 +19,7 @@ export const flow = async ({ info, debug }, lighthouse, page) => {
 
   info('Start testing flow...');
   debug('URL', PULSE_URL);
-  // await lighthouse.navigate(URL);
+
   await page.goto(PULSE_URL);
   await page.waitForNavigation();
 
@@ -69,6 +71,7 @@ export const flow = async ({ info, debug }, lighthouse, page) => {
     '//*[@id="single-spa-application:@kpmg/mypulse-natto"]/div/div/div[1]/div[1]/div[2]/'
     + 'div/div[1]/section/div[1]/div[2]/button',
   );
+  console.log('11111');
   await element.click();
   await page.waitForXPath(
     '//*[@id="single-spa-application:@kpmg/mypulse-natto"]/div/div/div[1]/div[1]/div[2]/'
@@ -80,10 +83,14 @@ export const flow = async ({ info, debug }, lighthouse, page) => {
     + 'div/div[1]/section/div[2]/div[1]/div/div/div[1]/div[2]/div/div/input',
   );
   await page.waitForTimeout(3000);
+  console.log('22222');
   await element.click();
   await page.waitForTimeout(3000);
-  const selectElement = await page.waitForXPath('/html/body/div[7]/div[1]/div/div[1]/ul/li[4]');
-  await selectElement.click();
+
+  if (envVariableValue !== 'DEV') {
+    const selectElement = await page.waitForXPath('/html/body/div[7]/div[1]/div/div[1]/ul/li[4]');
+    await selectElement.click();
+  }
   const validateElement = await page.waitForXPath(
     '//*[@id="single-spa-application:@kpmg/mypulse-natto"]/div/div/div[1]/div[1]/div[2]/'
     + 'div/div[1]/section/div[2]/div[2]/button[2]',
@@ -99,36 +106,40 @@ export const flow = async ({ info, debug }, lighthouse, page) => {
   await lighthouse.snapshot({ stepName: 'Filter search (last 30 days)' });
   info('Search result successfully showed...');
 
-  info('Going to Battec entities...');
-  await lighthouse.startTimespan({ stepName: 'Go to Battec entitie' });
+  if (envVariableValue !== 'DEV') {
+    info('Going to Battec entities...');
+    await lighthouse.startTimespan({ stepName: 'Go to Battec entitie' });
 
-  element = await page.waitForXPath(
-    '//*[@id="single-spa-application:@kpmg/mypulse-navbar"]/div/div/div[1]',
-  );
-  await element.click();
-  await page.waitForTimeout(3000);
+    element = await page.waitForXPath(
+      '//*[@id="single-spa-application:@kpmg/mypulse-navbar"]/div/div/div[1]',
+    );
+    await element.click();
+    await page.waitForTimeout(3000);
 
-  element = await page.waitForXPath(
-    '//*[@id="single-spa-application:@kpmg/setting"]/div/div/div[1]/div/div[3]/'
-    + 'div/div[34]/div/div/div/div[2]/div[1]/button',
-  );
-  await element.click();
-  await page.waitForTimeout(3000);
-  await page.waitForXPath(
-    '//*[@id="single-spa-application:@kpmg/setting"]/div/div/div[1]/div/div[3]/div/div[34]/div/div',
-  );
-  await lighthouse.endTimespan();
-  await lighthouse.snapshot({ stepName: 'Go to Battec entitie' });
-  info('Done going to battec entities...');
+    element = await page.waitForXPath(
+      '//*[@id="single-spa-application:@kpmg/setting"]/div/div/div[1]/div/div[3]/'
+      + 'div/div[34]/div/div/div/div[2]/div[1]/button',
+    );
+    await element.click();
+    await page.waitForTimeout(3000);
+    await page.waitForXPath(
+      '//*[@id="single-spa-application:@kpmg/setting"]/div/div/div[1]/div/div[3]/div/div[34]/div/div',
+    );
+    await lighthouse.endTimespan();
+    await lighthouse.snapshot({ stepName: 'Go to Battec entitie' });
+    info('Done going to battec entities...');
+  }
 
   info('Going to indicator result...');
   await lighthouse.startTimespan({ stepName: 'Show indicator page' });
 
-  element = await page.waitForSelector(
-    '#single-spa-application\\:\\@kpmg\\/mypulse-navbar > div > div > '
-    + 'div.navbar-menu > ul > li:nth-child(3)',
-  );
-  await element.click();
+  if (envVariableValue !== 'DEV') {
+    element = await page.waitForSelector(
+      '#single-spa-application\\:\\@kpmg\\/mypulse-navbar > div > div > div.navbar-menu > ul > li:nth-child(3)',
+    );
+    await element.click();
+  }
+
   await page.waitForSelector(
     '#single-spa-application\\:\\@kpmg\\/mypulse-navbar > div > div > '
     + 'div.navbar-menu > ul > li:nth-child(3)',
